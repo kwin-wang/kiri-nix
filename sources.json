@@ -1,0 +1,11 @@
+{
+  "version": "0.2.1",
+  "aarch64-darwin": {
+    "url": "https://github.com/libracoder/kiri/releases/download/v0.2.1/Kiri-0.2.1-arm64.tar.gz",
+    "hash": "sha256-e+HCiwjy50rC70+JcqPalR+JpONfEKRh3Oyw+tm5SvI="
+  },
+  "x86_64-darwin": {
+    "url": "https://github.com/libracoder/kiri/releases/download/v0.2.1/Kiri-0.2.1-x86_64.tar.gz",
+    "hash": "sha256-My0xO6WbKTmwvHaptVrDD2g1N6NOamUlZcfDn4S0Igk="
+  }
+}

@@ -1,0 +1,45 @@
+name: update
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Update sources.json
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./update.sh
+          if git diff --quiet sources.json; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            echo "version=$(jq -r .version sources.json)" >>"$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and verify signature
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          nix build .#kiri -L
+          codesign --verify --deep --strict result/Applications/Kiri.app
+          result/bin/kiri version
+
+      - name: Commit
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "kiri: ${{ steps.update.outputs.version }}"
+          git push
