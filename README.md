@@ -36,6 +36,12 @@ In a nix-darwin flake:
 nix-darwin copies `Kiri.app` to `/Applications/Nix Apps`, and `kiri` is on
 `PATH`.
 
+Kiri sets itself up the first time the app opens (or with `kiri setup`):
+a `kiri` docker context, a LaunchAgent for the engine and `~/.kiri/bin`.
+Run that from the app in `/Applications/Nix Apps`, not from the store path:
+the LaunchAgent records the binary's path, and the app rewrites an agent that
+points elsewhere.
+
 ## Package contents
 
 - `$out/Applications/Kiri.app`: the app, with the bundled docker CLI, Compose,
@@ -57,6 +63,11 @@ through this flake instead (`nix flake update kiri-nix`).
 `.github/workflows/update.yml` checks for a new upstream release every 6 hours.
 It runs `update.sh`, builds the package on macOS, verifies the code signature
 and commits the new `sources.json`.
+
+When a new release changes how `kiri setup` configures a Mac
+(`crates/kiri/src/setup.rs`, `flavor.rs`, `update.rs` or `packaging/README.md`),
+the workflow also opens an issue here linking the diff (`watch-setup.sh`), so
+configs built on this package can be checked.
 
 To update by hand:
 

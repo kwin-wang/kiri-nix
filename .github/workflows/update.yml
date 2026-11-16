@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   update:
@@ -21,6 +22,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "previous=$(jq -r .version sources.json)" >>"$GITHUB_OUTPUT"
           ./update.sh
           if git diff --quiet sources.json; then
             echo "changed=false" >>"$GITHUB_OUTPUT"
@@ -43,3 +45,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "kiri: ${{ steps.update.outputs.version }}"
           git push
+
+      # Downstream configs rely on how `kiri setup` lays things out (LaunchAgent,
+      # ~/.kiri paths, docker context, /var/run/docker.sock). When upstream
+      # changes that code, open an issue so the change gets a human look.
+      - name: Flag setup changes upstream
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FROM: v${{ steps.update.outputs.previous }}
+          TO: v${{ steps.update.outputs.version }}
+        run: ./watch-setup.sh "$FROM" "$TO"
