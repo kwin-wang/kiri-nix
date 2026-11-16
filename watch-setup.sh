@@ -46,7 +46,7 @@ Full diff: https://github.com/$upstream/compare/$from...$to
 
 Check whether configs built on this package still match, in particular:
 - the LaunchAgent \`dev.kiri.daemon\` and how the app recognises it
-- \`~/.kiri/bin\` and the PATH line written to shell profiles
+- \`~/.kiri/bin\` and the PATH line written to shell profiles, with its marker (\`PROFILE_MARK\`): setup skips a profile that has it, and fails on a read-only one that does not
 - \`/var/run/docker.sock\` and \`kiri setup --docker-socket\`
 - the in-app updater, which cannot replace a read-only Kiri.app
 EOF
